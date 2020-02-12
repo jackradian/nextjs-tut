@@ -4,34 +4,62 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
+import { makeStyles } from "@material-ui/core/styles";
 
-const linkStyle = {
-  marginRight: 15
-};
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1
+  },
+  menuButton: {
+    marginRight: theme.spacing(2)
+  },
+  title: {
+    flexGrow: 1
+  },
+  navigation: {
+    "& > * + *": {
+      marginLeft: theme.spacing(2)
+    },
+    "& a": {
+      textDecoration: "none"
+    }
+  }
+}));
 
-const Header = () => (
-  <div>
-    <AppBar position="static">
-      <Toolbar>
-        <IconButton edge="start" color="inherit" aria-label="menu">
-          <MenuIcon />
-        </IconButton>
-        <Typography variant="h6">Nextjs Tutorial</Typography>
-      </Toolbar>
-    </AppBar>
-    {/* <Link href="/">
-      <a style={linkStyle}>Home</a>
-    </Link>
-    <Link href="/about">
-      <a style={linkStyle}>About</a>
-    </Link>
-    <Link href="/tv-shows">
-      <a style={linkStyle}>TV Shows</a>
-    </Link>
-    <Link href="/everyday-quotes">
-      <a style={linkStyle}>Everyday Quotes</a>
-    </Link> */}
-  </div>
-);
+export default function Header() {
+  const classes = useStyles();
 
-export default Header;
+  return (
+    <div className={classes.root}>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            edge="start"
+            className={classes.menuButton}
+            color="inherit"
+            aria-label="menu"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h5" className={classes.title}>
+            Nextjs Tutorial
+          </Typography>
+          <Typography variant="h6" className={classes.navigation}>
+            <Link href="/">
+              <a>Home</a>
+            </Link>
+            <Link href="/about">
+              <a>About</a>
+            </Link>
+            <Link href="/tv-shows">
+              <a>TV Shows</a>
+            </Link>
+            <Link href="/everyday-quotes">
+              <a>Everyday Quotes</a>
+            </Link>
+          </Typography>
+        </Toolbar>
+      </AppBar>
+    </div>
+  );
+}
