@@ -1,3 +1,4 @@
+import Layout from "../components/MyLayout";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 
@@ -21,29 +22,31 @@ export default function EverydayQuotes() {
   if (error) quote = "Failed to fetch the quote.";
 
   return (
-    <main className="center">
-      <div className="quote">{quote}</div>
-      {author && <span className="author">- {author}</span>}
+    <Layout>
+      <main className="center">
+        <div className="quote">{quote}</div>
+        {author && <span className="author">- {author}</span>}
 
-      <style jsx>{`
-        main {
-          width: 90%;
-          max-width: 900px;
-          margin: 300px auto;
-          text-align: center;
-        }
-        .quote {
-          font-family: cursive;
-          color: #e243de;
-          font-size: 24px;
-          padding-bottom: 10px;
-        }
-        .author {
-          font-family: sans-serif;
-          color: #559834;
-          font-size: 20px;
-        }
-      `}</style>
-    </main>
+        <style jsx>{`
+          main {
+            width: 90%;
+            max-width: 900px;
+            margin: 300px auto;
+            text-align: center;
+          }
+          .quote {
+            font-family: cursive;
+            color: #e243de;
+            font-size: 24px;
+            padding-bottom: 10px;
+          }
+          .author {
+            font-family: sans-serif;
+            color: #559834;
+            font-size: 20px;
+          }
+        `}</style>
+      </main>
+    </Layout>
   );
 }
