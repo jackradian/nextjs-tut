@@ -21,7 +21,8 @@ const useStyles = makeStyles(theme => ({
       marginLeft: theme.spacing(2)
     },
     "& a": {
-      textDecoration: "none"
+      textDecoration: "none",
+      color: "#fff"
     }
   }
 }));
