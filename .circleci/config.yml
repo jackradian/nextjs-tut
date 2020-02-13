@@ -1,0 +1,96 @@
+version: 2.1
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:12.14.1
+    steps:
+      - checkout
+      - run:
+          name: update-npm
+          command: sudo npm install -g npm@latest
+      - run:
+          name: yarn version
+          command: yarn --version
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ./node_modules
+      - restore_cache:
+          name: Restore Next Build Cache
+          keys:
+            - next-build-{{ checksum "yarn.lock" }}
+      - run:
+          name: Build app
+          command: yarn build
+      - save_cache:
+          name: Save Next Build Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ./.next
+  deploy-prd:
+    docker:
+      - image: circleci/node:12.14.1
+      - image: circleci/python:3.8.1
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: Install rsync
+          command: sudo apt install -y rsync
+      - run:
+          name: Install PIP
+          command: sudo apt-get install python-pip python-dev
+      - run:
+          name: Install aws cli
+          command: sudo pip install awscli
+      - run:
+          name: "authorize-security-group-ingress"
+          command: |
+            IP=`curl -s ifconfig.me`
+            echo "#!/bin/bash" > ./sg.sh
+            echo "aws configure set region ap-northeast-1" >> ./sg.sh
+            echo "aws ec2 authorize-security-group-ingress --group-id $SSH_SG_ID --protocol tcp --port 22 --cidr ${IP}/32" >> ./sg.sh
+            bash ./sg.sh
+      - add_ssh_keys:
+          fingerprints:
+            - "b5:1e:52:c2:f1:e9:bf:c3:7c:a2:78:92:ca:6e:1a:55"
+      - deploy:
+          name: deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" = "master" ]; then
+              rsync -avce ssh ~/repo ec2-54-249-94-242.ap-northeast-1.compute.amazonaws.com:$PRJ_DIR
+            else
+              echo "Not master branch, dry run only"
+            fi
+      - run:
+          name: Restart pm2
+          command: |
+            ssh -oStrictHostKeyChecking=no ec2-54-249-94-242.ap-northeast-1.compute.amazonaws.com "cd $PRJ_DIR && pm2 start yarn --name "nextjs" --interpreter bash -- start"
+      - run:
+          name: "revoke-security-group-ingress"
+          command: |
+            IP=`curl -s ifconfig.me`
+            echo "#!/bin/bash" > ./sg.sh
+            echo "aws configure set region ap-northeast-1" >> ./sg.sh
+            echo "aws ec2 revoke-security-group-ingress --group-id $SSH_SG_ID --protocol tcp --port 22 --cidr ${IP}/32" >> ./sg.sh
+            bash ./sg.sh
+workflows:
+  version: 2.1
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy-prd:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
