@@ -15,7 +15,7 @@ export default function EverydayQuotes() {
     fetcher
   );
   const author = data?.author;
-  let quote = data?.quote;
+  let quote = data?.text;
 
   if (!data) quote = "Loading...";
   if (error) quote = "Failed to fetch the quote.";

@@ -2,9 +2,9 @@ import Header from "./Header";
 import Container from "@material-ui/core/Container";
 
 const Layout = props => (
-  <Container maxWidth="md" disableGutters>
+  <Container maxWidth="md" disableGutters={true}>
     <Header />
-    {props.children}
+    <Container maxWidth="md">{props.children}</Container>
   </Container>
 );
 
