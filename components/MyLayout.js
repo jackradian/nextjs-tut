@@ -1,11 +1,16 @@
 import Header from "./Header";
-import Container from "@material-ui/core/Container";
+
+const layoutStyle = {
+  margin: 20,
+  padding: 20,
+  border: "1px solid #DDD"
+};
 
 const Layout = props => (
-  <Container maxWidth="md" disableGutters={true}>
+  <div style={layoutStyle}>
     <Header />
-    <Container maxWidth="md">{props.children}</Container>
-  </Container>
+    {props.children}
+  </div>
 );
 
 export default Layout;
